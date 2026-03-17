@@ -1,13 +1,16 @@
-CC = gcc
+CC     = gcc
 CFLAGS = -std=c89 -pedantic-errors -Wall -Wextra -Werror -g
 TARGET = calc
+SRCS   = main.c calc.c token.c parse.c interpriter.c
+OBJS   = $(SRCS:.c=.o)
 
 all: $(TARGET)
 
-$(TARGET): main.c calc.c
-	$(CC) $(CFLAGS) -o $(TARGET) main.c calc.c
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS)
+
+%.o: %.c calc.h
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(TARGET)
-
-
+	rm -f $(TARGET) $(OBJS)

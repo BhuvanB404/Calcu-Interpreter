@@ -1,43 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "calc.h"
 
-int eval(const char* input, int* out_result);
+#define MAX_BUFFERSIZE 1024
 
 int main(void) {
-    char *ip_buf;
-    int len;
+    char *input_buff;
     int result;
-
-    ip_buf = (char *)malloc(1024);
-    if (ip_buf == NULL) {
-        fprintf(stderr, "Out of memory\n");
+    int len;
+    
+    input_buff = malloc(MAX_BUFFERSIZE);
+    if (input_buff == NULL) {
+        fprintf(stderr, "error: out of memory\n");
         return 1;
     }
-
-    printf("Enter expression: \n");
-    printf(">>");
-
-    while (fgets(ip_buf, 1024, stdin) != NULL) {
-        len = strlen(ip_buf);
-        if (len != 0 && ip_buf[len - 1] == '\n') {
-            ip_buf[len - 1] = '\0';
-        }
-
-        if (ip_buf[0] == '\0') {
-         printf(">> ");
+    
+    printf(">> ");
+    
+    while (fgets(input_buff, MAX_BUFFERSIZE, stdin) != NULL) {
+        len = strlen(input_buff);
+        if (len > 0 && input_buff[len - 1] == '\n')
+            input_buff[len - 1] = '\0';
+        
+        if (input_buff[0] == '\0') {
+            printf(">> ");
             continue;
         }
-
-        if (eval(ip_buf, &result) == 0) {
+        
+        if (eval(input_buff, &result) == 0)
             printf("%d\n", result);
-        }
-
-     
         printf(">> ");
     }
 
-    free(ip_buf);
+    free(input_buff);
     return 0;
 }
-
