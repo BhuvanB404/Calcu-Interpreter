@@ -1,7 +1,7 @@
 CC     = gcc
 CFLAGS = -std=c89 -pedantic-errors -Wall -Wextra -Werror -g
 TARGET = calc
-SRCS   = main.c calc.c token.c parse.c interpriter.c
+SRCS   = main.c calc.c token.c parse.c interpreter.c
 OBJS   = $(SRCS:.c=.o)
 
 all: $(TARGET)

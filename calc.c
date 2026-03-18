@@ -9,16 +9,18 @@ int eval(const char *src, int *out) {
 
     toks = tokenize_all(src);
     if (toks == NULL)
-        return -1; /* tokenization error */
+        return -1; /*tk error*/
 
     tree = parse(toks);
-    token_free_list(toks);
 
-    if (tree == NULL)
-        return -1; /* parsing error */
+    if (tree == NULL) {
+        token_free_list(toks);
+        return -1;  /*parse error*/
+    }
 
     result = interpret(tree, out);
     node_free(tree);
+    token_free_list(toks);
 
     return result;
 }

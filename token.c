@@ -19,6 +19,8 @@ static Token *read_int(SrcState *st);
 static void   skip_space(SrcState *st);
 static void   tok_error(const char *msg);
 static void   consume(SrcState *st);
+static int    is_ident_var(char c);
+static int    is_ident_val(char c);
 
 
 static void tok_error(const char *msg)
@@ -57,6 +59,15 @@ static void skip_space(SrcState *st)
         consume(st);
 }
 
+static int is_ident_var(char c)
+{
+    return isalpha(c) || c == '_';
+}
+
+static int is_ident_val(char c)
+{
+    return is_ident_var(c) || isdigit(c);
+}
 
 static Token * read_int(SrcState *st)
 {
@@ -85,12 +96,39 @@ static Token * read_int(SrcState *st)
     return tok;
 }
 
+static Token* read_ident(SrcState *st)
+{
+    const char *start;
+    int         len;
+    Token      *tok;
+
+    start = st->p;
+    len   = 0;
+
+    if (!is_ident_var(*st->p)) {
+        tok_error("invalid identifier");
+        return NULL;
+    }
+
+    while (*st->p != '\0' &&
+           is_ident_val(*st->p)) {
+        consume(st);
+        len++;
+    }
+
+    tok = new_token(TK_IDENT, start, len);
+    return tok;
+}
+
+
+
 /* Uses  linked list for token storage */
 Token * tokenize_all(const char *src)
 {
     SrcState  st;
     Token     head;  
     Token    *cur;
+    Token    *tok;
     char      buff[64];
 
     st.p = src;
@@ -107,7 +145,22 @@ Token * tokenize_all(const char *src)
 
 
         if (isdigit((unsigned char)*st.p)) {
-            cur = cur->next = read_int(&st);
+            tok = read_int(&st);
+            if (tok == NULL) {
+                token_free_list(head.next);
+                return NULL;
+            }
+            cur = cur->next = tok;
+            continue;
+        }
+
+        if(is_ident_var(*st.p)) {
+            tok = read_ident(&st);
+            if (tok == NULL) {
+                token_free_list(head.next);
+                return NULL;
+            }
+            cur = cur->next = tok;
             continue;
         }
 
@@ -118,6 +171,14 @@ Token * tokenize_all(const char *src)
             continue;
         case '-':
             cur = cur->next = new_token(TK_MINUS, st.p, 1);
+            consume(&st);
+            continue;
+        case '=':
+            cur = cur->next = new_token(TK_ASSIGN, st.p, 1);
+            consume(&st);
+            continue;
+        case ';':
+            cur = cur->next = new_token(TK_SEMI, st.p, 1);
             consume(&st);
             continue;
         case '*':
