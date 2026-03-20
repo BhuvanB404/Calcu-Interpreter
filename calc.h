@@ -59,5 +59,7 @@ void node_free(Node *n);
 int interpret(Node *n, int *out);
 
 
-int eval(const char *src, int *out);
+#include "interpreter.h"
+
+int eval(const char *src, Value *out);
 
